@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Account{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4 fw-semibold">Create an Account</h3>
+                    <form method="POST" enctype="multipart/form-data">
+                       {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Account Name
+                                <input type="text" id="name" name="name" value="{{ account.name|default:"" }}" class="form-control" required="required">
+                            </label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="initial_amount" class="form-label">Initial Amount
+                                <input type="number" id="initial_amount" name="initial_amount" value="{{ account.initial_amount|default:"0" }}" class="form-control">
+                            </label>
+                        </div>
+                        <div class="mb-3">
+                            {% if account.icon %}
+                                <div class="mb-2">
+                                    <img src="{{ account.icon.url }}" alt="Current Icon" style="max-width: 64px; max-height: 64px;">
+                                    <div class="form-text">Current icon. Upload a new file to replace.</div>
+                                </div>
+                            {% endif %}
+                            <label for="icon" class="form-label">Icon
+                                <input type="file" id="icon" name="icon" class="form-control" value="{{ account.icon }}">
+                            </label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                {{ action }} Account
+                            </button>
+                        </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

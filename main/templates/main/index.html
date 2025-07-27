@@ -4,5 +4,6 @@
     Welcome to the index
     {% if user.is_authenticated %}
         Logged in: {{ user.username }}
+        <a href="{% url "accounts:accounts_ls" %}">Account list</a>
     {% endif %}
 {% endblock %}

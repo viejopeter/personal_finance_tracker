@@ -14,7 +14,7 @@
                     </div>
                 {% endif %}
 
-                <form action="{% url 'users:register' %}" method="POST" novalidate>
+                <form action="{% url 'users:register' %}" method="POST">
                     {% csrf_token %}
 
                     <div class="mb-3">
@@ -36,7 +36,7 @@
                             id="email"
                             name="email"
                             placeholder="Enter your email"
-                            required>
+                            required="required">
                     </div>
 
                     <div class="mb-3">
@@ -47,7 +47,7 @@
                             id="password1"
                             name="password1"
                             placeholder="Create a password"
-                            required>
+                            required="required">
                     </div>
 
                     <div class="mb-3">
@@ -58,7 +58,7 @@
                             id="password2"
                             name="password2"
                             placeholder="Repeat your password"
-                            required>
+                            required="required">
                     </div>
 
                     <div class="d-grid">
