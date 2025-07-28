@@ -16,6 +16,7 @@ def create_account(request):
     if request.method == 'POST':
         account_name = request.POST.get('name')
         initial_amount = request.POST.get('initial_amount')
+        icon = None
         if request.FILES.get('icon'):
             icon = request.FILES.get('icon')
         Account.objects.create(user=request.user, name=account_name, initial_amount=initial_amount, icon=icon)

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Category{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4 fw-semibold">{{ action }} an Category</h3>
+                    <form method="POST" enctype="multipart/form-data">
+                       {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category Name
+                                <input type="text" id="category" name="category" value="{{ category.category|default:"" }}" class="form-control" required="required">
+                            </label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category_type" class="form-label">Category Type</label>
+                            <select name="category_type" id="category_type" class="form-select" required="required">
+                                {% for value, label in category_type %}
+                                    <option value="{{ value }}" {% if category and category.category_type == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                {{ action }} Category
+                            </button>
+                        </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
