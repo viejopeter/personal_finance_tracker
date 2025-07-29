@@ -34,7 +34,7 @@
                         {% for category in categories %}
                             <tr>
                                 <td>{{ category.category }}</td>
-                                <td>{{ category.category_type }}</td>
+                                <td>{{ category.get_category_type_display }}</td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
                                         <a href="{% url 'categories:category_edit' category.id %}" class="btn btn-sm btn-outline-primary">

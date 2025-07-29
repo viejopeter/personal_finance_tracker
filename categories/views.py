@@ -1,20 +1,15 @@
-from urllib import request
-
 from django.contrib.messages.context_processors import messages
-from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.http import Http404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.contrib import messages
 from categories.models import Category
-from users.models import UserExtend
-
 
 class CategoryListView(View):
 
     def get(self,request):
         context = {}
-        user = get_object_or_404(UserExtend,user_id=request.user.id)
-        categories = user.categories.all()
+        categories = Category.objects.filter(user=request.user)
         context['categories'] = categories
         return render(request,'categories/categories_ls.html',context=context)
 
@@ -31,18 +26,16 @@ class CategoryCreateView(View):
 
     def post(self,request):
 
-        user_extend = get_object_or_404(UserExtend,user_id=request.user.id)
-
         category = request.POST['category']
         category_type = request.POST['category_type']
-        user = request.user
+
         #Create the category in the model
-        new_category = Category.objects.create(category=category,category_type=category_type,user=user)
-        #Create the category in relationship
-        user_extend.categories.add(new_category)
+        Category.objects.create(category=category,category_type=category_type,user=request.user)
+        categories = Category.objects.filter(user=request.user)
+
         context = {
             'action': 'Create',
-            'categories': user_extend.categories.all()
+            'categories': categories
         }
         messages.success(request, 'Category Added Successfully')
         return render(request,'categories/categories_ls.html',context=context)
@@ -60,26 +53,39 @@ class CategoryEditView(View):
 
        return render(request,"categories/category_form.html",context=context)
 
-
     def post(self,request, *args, **kwargs):
 
-       user_extend = get_object_or_404(UserExtend,user=request.user.id)
+       #Bring the variables from POST request
        category_name = request.POST['category']
        category_type = request.POST['category_type']
+
+       #Using kwargs bring the id in url
        id_category = kwargs['id_category']
-       category = user_extend.categories.get(id=id_category)
+
+       category = get_object_or_404(Category,id=id_category)
        category.category = category_name
        category.category_type = category_type
        category.user = request.user
        category.save()
+
+       categories = Category.objects.filter(user=request.user)
+
        context = {
             'action': 'Edit',
-            'categories': user_extend.categories.all()
+            'categories': categories
        }
        messages.success(request, 'Category Updated Successfully')
        return render(request,'categories/categories_ls.html',context=context)
 
-
 class CategoryDeleteView(View):
 
-    pass
+    def post(self,request, *args, **kwargs):
+        id_category = kwargs.get('id_category')
+        try:
+            category = get_object_or_404(Category,pk=id_category)
+            category.delete()
+            messages.success(request, 'Category Deleted Successfully')
+        except Http404:
+            messages.error(request, 'Category Not Found')
+
+        return redirect('categories:category_ls')

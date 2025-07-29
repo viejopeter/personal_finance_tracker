@@ -51,11 +51,10 @@ def register_request(request):
         if not user_exists:
              user = User.objects.create_user(username=username, email=email, password=password2)
 
-             user_extend = UserExtend.objects.create(user=user)
-
              categories = Category.objects.filter(user=None)
-             user_extend.categories.add(*categories)
 
+             for category in categories:
+                 Category.objects.create(category=category.category,category_type=category.category_type,user=user)
 
              login(request, user)
              context['user'] = user
