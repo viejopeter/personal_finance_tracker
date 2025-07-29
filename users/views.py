@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 import logging
 
+from categories.models import Category
 from users.models import UserExtend
 
 logger = logging.getLogger(__name__)
@@ -50,7 +51,11 @@ def register_request(request):
         if not user_exists:
              user = User.objects.create_user(username=username, email=email, password=password2)
 
-             UserExtend.objects.create(user=user)
+             user_extend = UserExtend.objects.create(user=user)
+
+             categories = Category.objects.filter(user=None)
+             user_extend.categories.add(*categories)
+
 
              login(request, user)
              context['user'] = user

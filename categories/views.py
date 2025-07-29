@@ -1,4 +1,7 @@
+from urllib import request
+
 from django.contrib.messages.context_processors import messages
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.contrib import messages
@@ -59,7 +62,22 @@ class CategoryEditView(View):
 
 
     def post(self,request, *args, **kwargs):
-     pass
+
+       user_extend = get_object_or_404(UserExtend,user=request.user.id)
+       category_name = request.POST['category']
+       category_type = request.POST['category_type']
+       id_category = kwargs['id_category']
+       category = user_extend.categories.get(id=id_category)
+       category.category = category_name
+       category.category_type = category_type
+       category.user = request.user
+       category.save()
+       context = {
+            'action': 'Edit',
+            'categories': user_extend.categories.all()
+       }
+       messages.success(request, 'Category Updated Successfully')
+       return render(request,'categories/categories_ls.html',context=context)
 
 
 class CategoryDeleteView(View):

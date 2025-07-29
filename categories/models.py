@@ -3,8 +3,8 @@ from django.db import models
 
 class Category(models.Model):
 
-    INCOME = "Income"
-    EXPENSE = "Expense"
+    INCOME = "income"
+    EXPENSE = "expense"
     category_type_options = [
         (INCOME, "Income"),
         (EXPENSE, "Expense"),
