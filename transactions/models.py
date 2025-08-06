@@ -6,9 +6,9 @@ from categories.models import Category
 
 class Transaction(models.Model):
 
-    INCOME = 'INCOME'
-    EXPENSE = 'EXPENSE'
-    TRANSFER = 'TRANSFER'
+    INCOME = 'income'
+    EXPENSE = 'expense'
+    TRANSFER = 'transfer'
     choices = (
         (INCOME, 'Income'),
         (EXPENSE, 'Expense'),
