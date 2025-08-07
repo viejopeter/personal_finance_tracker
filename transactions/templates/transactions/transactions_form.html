@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}{{ action }} Transaction{% endblock %}
 {% block content %}
 <div class="row justify-content-center">
@@ -6,6 +7,14 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h3 class="card-title text-center mb-4 fw-semibold">{{ action }} Transaction</h3>
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show message" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                     <form method="POST" enctype="multipart/form-data">
                        {% csrf_token %}
                         <div class="mb-3">
@@ -17,46 +26,63 @@
                                 </select>
                             </label>
                         </div>
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Description
-                                <input type="text" id="name" name="name" value="{{ transaction.description|default:"" }}" class="form-control" required="required">
+                        <div class="mb-3" id="field-date">
+                            <label for="date" class="form-label">Date & Time
+                                <input type="datetime-local" id="date" name="date" value="{{ date|default:'' }}" class="form-control" required="required">
                             </label>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" id="field-description">
+                            <label for="description" class="form-label">Description
+                                <textarea id="description" name="description" class="form-control" required="required">{{ transaction.description|default:"" }}</textarea>
+                            </label>
+                        </div>
+                        <div class="mb-3" id="field-amount">
                             <label for="amount" class="form-label">Amount
                                 <input type="number" id="amount" name="amount" value="{{ transaction.amount|default:"0" }}" class="form-control" required="required">
                             </label>
                         </div>
                         <div class="mb-3" id="display-category">
                             <label for="category" class="form-label">Category
-                                <select id="category" name="category" class="form-select" required="required">
+                                <select id="category" name="category" class="form-select">
+                                    <option value="">Select one</option>
                                     {% for value,label in categories %}
-                                        <option value="{{ value }}" {% if transaction and transaction.category == value %}selected{% endif %}>{{ label }}</option>
+                                        <option value="{{ value }}" {% if transaction and transaction.category and transaction.category.id == value %}selected{% endif %}>{{ label }}</option>
                                     {% endfor %}
                                 </select>
                             </label>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" id="field-account">
                             <label for="account">Account
                                 <select id="account" name="account" class="form-select" required="required">
-                                  {% for value,label in accounts  %}
-                                      <option value="{{ value }}" {% if transaction and transaction.account %}selected{% endif %}>{{ label }}</option>
+                                  <option value="">Select one</option>
+                                    {% for value,label in accounts  %}
+                                      <option value="{{ value }}" {% if transaction and transaction.origin_account and transaction.origin_account.id == value %}selected{% endif %}>{{ label }}</option>
                                   {% endfor %}
                                 </select>
                             </label>
                         </div>
                         <div class="mb-3" id="display-to-account">
                             <label for="to_account">To Account
-                                <select id="to_account" name="to_account" class="form-select" required="required">
-                                  {% for value,label in accounts  %}
-                                      <option value="{{ value }}" {% if transaction and transaction.account %}selected{% endif %}>{{ label }}</option>
-                                  {% endfor %}
+                                <select id="to_account" name="to_account" class="form-select" >
+                                    <option value="">Select one</option>
+                                    {% for value,label in accounts  %}
+                                        <option value="{{ value }}" {% if transaction and transaction.destination_account and transaction.destination_account.id == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
                                 </select>
                             </label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                {{ action }} Transaction
+                            </button>
                         </div>
                     </form>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+{{ categories_by_type|json_script:"categories-by-type" }}
+<script src="{% static 'js/transactions/transactions_form.js' %}"></script>
 {% endblock %}
