@@ -23,8 +23,10 @@ class TransactionsCreateView(View):
         categories_ls = Category.objects.filter(user=request.user)
         categories_by_type = {}
         for t_value, t_label in transaction_type:
+            # Filter categories by type for the current user and build a dictionary for JS
             filtered = categories_ls.filter(category_type=t_value)
             categories_by_type[t_value] = [(c.id, c.category) for c in filtered]
+        # Get all accounts for the current user for account selection
         accounts_ls = Account.objects.filter(user=request.user).values('id','name')
         accounts_select = [(a['id'],a['name']) for a in accounts_ls]
         context={
@@ -108,18 +110,23 @@ class TransactionsUpdateView(View):
         categories_ls = Category.objects.filter(user=request.user)
         categories_by_type = {}
         for t_value, t_label in transaction_type:
+            # Filter categories by type for the current user and build a dictionary for JS
             filtered = categories_ls.filter(category_type=t_value)
             categories_by_type[t_value] = [(c.id, c.category) for c in filtered]
+        # Get all accounts for the current user for account selection
         accounts_ls = Account.objects.filter(user=request.user).values('id','name')
         accounts_select = [(a['id'],a['name']) for a in accounts_ls]
+        # Format transaction date for the input field
+        date_str = transaction.datetime.strftime('%Y-%m-%dT%H:%M') if transaction.datetime else ''
+        # Prepare context for rendering the update form
         context = {
-            'id_transaction': id_transaction,
-            'action': 'Update',
-            'transaction': transaction,
-            'date': date_str,
-            'transaction_type': transaction_type,
-            'accounts': accounts_select,
-            'categories_by_type': categories_by_type,
+            'id_transaction': id_transaction,  # Transaction ID for reference
+            'action': 'Update',                # Action label for the form
+            'transaction': transaction,        # Transaction instance to edit
+            'date': date_str,                  # Formatted date for input
+            'transaction_type': transaction_type, # List of transaction types
+            'accounts': accounts_select,       # List of user's accounts
+            'categories_by_type': categories_by_type, # Filtered categories by type
         }
         return render(request, "transactions/transactions_form.html", context)
 
@@ -164,35 +171,44 @@ class TransactionsUpdateView(View):
                 categories_by_type[t_value] = [(c.id, c.category) for c in filtered]
             accounts_ls = Account.objects.filter(user=request.user).values('id','name')
             accounts_select = [(a['id'],a['name']) for a in accounts_ls]
+            # Format transaction date for the input field
             date_str = transaction.datetime.strftime('%Y-%m-%dT%H:%M') if transaction.datetime else ''
+            # Prepare context for rendering the update form
             context = {
-                'id_transaction': id_transaction,
-                'action': 'Update',
-                'transaction': transaction,
-                'date': date_str,
-                'transaction_type': transaction_type,
-                'accounts': accounts_select,
-                'categories_by_type': categories_by_type,
+                'id_transaction': id_transaction,  # Transaction ID for reference
+                'action': 'Update',                # Action label for the form
+                'transaction': transaction,        # Transaction instance to edit
+                'date': date_str,                  # Formatted date for input
+                'transaction_type': transaction_type, # List of transaction types
+                'accounts': accounts_select,       # List of user's accounts
+                'categories_by_type': categories_by_type, # Filtered categories by type
             }
+            # Render the transaction update form template
             return render(request, "transactions/transactions_form.html", context)
-        # Update transaction
+        # Update transaction fields from form data
         transaction.type = type
         transaction.description = description
         transaction.amount = amount
         transaction.origin_account = Account.objects.get(id=account_id) if account_id else None
+        # Set destination account only for transfers
         if type == 'transfer' and to_account_id:
             transaction.destination_account = Account.objects.get(id=to_account_id)
         else:
             transaction.destination_account = None
+        # Set category only if provided
         transaction.category = Category.objects.get(id=category_id) if category_id else None
+        # Update transaction date and time
         transaction.datetime = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
         transaction.save()
+        # Show success message and redirect to transaction list
         messages.success(request, 'Transaction updated Successfully!')
         return redirect('transactions:transactions_ls')
 
 class TransactionsDeleteView(View):
     def post(self, request, id_transaction):
+        # Get the transaction to delete
         transaction = get_object_or_404(Transaction, id=id_transaction)
         transaction.delete()
+        # Show success message and redirect to transaction list
         messages.success(request, 'Transaction deleted successfully!')
         return redirect('transactions:transactions_ls')

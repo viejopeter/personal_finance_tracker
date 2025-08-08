@@ -43,11 +43,9 @@
                         </div>
                         <div class="mb-3" id="display-category">
                             <label for="category" class="form-label">Category
-                                <select id="category" name="category" class="form-select">
+                                <select id="category" name="category" class="form-select" data-initial="{{ transaction.category.id|default:'' }}">
                                     <option value="">Select one</option>
-                                    {% for value,label in categories %}
-                                        <option value="{{ value }}" {% if transaction and transaction.category and transaction.category.id == value %}selected{% endif %}>{{ label }}</option>
-                                    {% endfor %}
+                                    <!-- Options will be populated by JS -->
                                 </select>
                             </label>
                         </div>

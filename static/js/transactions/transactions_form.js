@@ -25,6 +25,13 @@ document.addEventListener('DOMContentLoaded', function() {
       option.textContent = label;
       categorySelect.appendChild(option);
     });
+    // Always set selected value after populating
+    var initialCategory = categorySelect.getAttribute('data-initial');
+    if (initialCategory && categorySelect.querySelector('option[value="' + initialCategory + '"]')) {
+      categorySelect.value = initialCategory;
+    } else {
+      categorySelect.value = '';
+    }
   }
 
   function updateFields() {
@@ -50,10 +57,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+
   typeSelect.addEventListener('change', function() {
     updateCategories();
     updateFields();
   });
+  // Set initial type if editing
+  var initialType = typeSelect.querySelector('option[selected]');
+  if (initialType) {
+    typeSelect.value = initialType.value;
+  }
+  // Initial population
   updateCategories();
   updateFields();
 });
