@@ -1,0 +1,30 @@
+services:
+
+  postgres:  # PostgreSQL database
+    image: postgres:15
+    container_name: db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  web:  # Django application
+    build: .
+    container_name: web
+    command: >
+      sh -c "sleep 10 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - '.:/var/www/html'
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+
+volumes:
+  postgres:

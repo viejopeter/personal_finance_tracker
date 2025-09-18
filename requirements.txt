@@ -1,4 +1,11 @@
+# Django web framework for building the application
 Django==5.2.4
+
+# PostgreSQL database adapter for Python (used by Django to connect to PostgreSQL)
 psycopg2-binary==2.9.10
+
+# Library for separating settings/configuration from code (e.g., using .env files)
 python-decouple==3.8
+
+# Python Imaging Library for image processing (e.g., handling uploaded images)
 Pillow
