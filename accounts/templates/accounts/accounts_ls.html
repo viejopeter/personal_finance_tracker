@@ -43,7 +43,7 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ account.name }}</td>
-                                <td>${{ account.initial_amount }}</td>
+                                <td>${{ account.balance }}</td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
                                         <a href="{% url 'accounts:update_account' account.id %}" class="btn btn-sm btn-outline-primary">

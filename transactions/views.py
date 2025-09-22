@@ -7,6 +7,26 @@ from transactions.models import Transaction
 from accounts.models import Account
 from datetime import datetime
 from django.contrib import messages
+from decimal import Decimal
+
+def update_account_balances(type, amount, origin_account, destination_account=None, reverse=False):
+    amount_value = Decimal(str(amount))
+    if reverse:
+        amount_value = -amount_value
+    if type == 'income':
+        if origin_account:
+            origin_account.balance += amount_value
+            origin_account.save()
+    elif type == 'expense':
+        if origin_account:
+            origin_account.balance -= amount_value
+            origin_account.save()
+    elif type == 'transfer':
+        if origin_account and destination_account:
+            origin_account.balance -= amount_value
+            origin_account.save()
+            destination_account.balance += amount_value
+            destination_account.save()
 
 class TransactionsListView(View):
     def get(self, request):
@@ -83,6 +103,7 @@ class TransactionsCreateView(View):
                 'categories_by_type': categories_by_type,
             }
             return render(request, "transactions/transactions_form.html", context)
+
         # Get model instances
         category = Category.objects.get(id=category_id) if category_id else None
         origin_account = Account.objects.get(id=account_id) if account_id else None
@@ -97,6 +118,7 @@ class TransactionsCreateView(View):
             datetime=date_value,
             category=category,
         )
+        update_account_balances(type, amount, origin_account, destination_account)
         messages.success(request, 'Transaction created Successfully!')
         return redirect('transactions:transactions_ls')
 
@@ -133,6 +155,13 @@ class TransactionsUpdateView(View):
     def post(self, request, *args, **kwargs):
         id_transaction = kwargs.get('id_transaction')
         transaction = get_object_or_404(Transaction, id=id_transaction)
+        # Store old values for reversal
+        old_type = transaction.type
+        old_amount = transaction.amount
+        old_origin = transaction.origin_account
+        old_dest = transaction.destination_account
+        update_account_balances(old_type, old_amount, old_origin, old_dest, reverse=True)
+        # Get new values from the request
         type = request.POST.get('type')
         description = request.POST.get('description')
         amount = request.POST.get('amount')
@@ -190,25 +219,21 @@ class TransactionsUpdateView(View):
         transaction.description = description
         transaction.amount = amount
         transaction.origin_account = Account.objects.get(id=account_id) if account_id else None
-        # Set destination account only for transfers
         if type == 'transfer' and to_account_id:
             transaction.destination_account = Account.objects.get(id=to_account_id)
         else:
             transaction.destination_account = None
-        # Set category only if provided
         transaction.category = Category.objects.get(id=category_id) if category_id else None
-        # Update transaction date and time
         transaction.datetime = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
         transaction.save()
-        # Show success message and redirect to transaction list
+        update_account_balances(type, amount, transaction.origin_account, transaction.destination_account)
         messages.success(request, 'Transaction updated Successfully!')
         return redirect('transactions:transactions_ls')
 
 class TransactionsDeleteView(View):
     def post(self, request, id_transaction):
-        # Get the transaction to delete
         transaction = get_object_or_404(Transaction, id=id_transaction)
+        update_account_balances(transaction.type, transaction.amount, transaction.origin_account, transaction.destination_account, reverse=True)
         transaction.delete()
-        # Show success message and redirect to transaction list
         messages.success(request, 'Transaction deleted successfully!')
         return redirect('transactions:transactions_ls')

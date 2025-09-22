@@ -15,11 +15,11 @@ def accounts_ls(request):
 def create_account(request):
     if request.method == 'POST':
         account_name = request.POST.get('name')
-        initial_amount = request.POST.get('initial_amount')
+        balance = request.POST.get('balance')
         icon = None
         if request.FILES.get('icon'):
             icon = request.FILES.get('icon')
-        Account.objects.create(user=request.user, name=account_name, initial_amount=initial_amount, icon=icon)
+        Account.objects.create(user=request.user, name=account_name, balance=balance, icon=icon)
         messages.success(request, 'Account Created Successfully')
         return redirect("accounts:accounts_ls")
 
@@ -29,7 +29,7 @@ def update_account(request,id_account):
     account = get_object_or_404(Account, pk=id_account)
     if request.method == 'POST':
         account.name = request.POST.get('name')
-        account.initial_amount = request.POST.get('initial_amount')
+        account.balance = request.POST.get('balance')
         if request.FILES.get('icon'):
             account.icon = request.FILES.get('icon')
         account.save()

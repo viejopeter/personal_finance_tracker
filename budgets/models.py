@@ -3,9 +3,8 @@ from django.db import models
 
 from categories.models import Category
 
-
 class Budget(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     category  = models.ForeignKey(Category, on_delete=models.CASCADE,blank=False,null=False)
     amount = models.DecimalField(decimal_places=2, max_digits=10,blank=False,null=False)
     month = models.PositiveSmallIntegerField()  # 1-12 for months
@@ -13,5 +12,11 @@ class Budget(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['user', 'month', 'year'], name='unique_user_month_year')
+            models.UniqueConstraint(
+                fields=['user', 'category', 'month', 'year'],
+                name='unique_user_category_month_year'
+            )
         ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.category.name} ({self.month}/{self.year}): {self.amount}"

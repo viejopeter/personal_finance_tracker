@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Budget{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4 fw-semibold">{{ action }} a Budget</h3>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            {{ action }} Budget
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
