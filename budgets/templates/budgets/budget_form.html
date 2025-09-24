@@ -7,11 +7,15 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h3 class="card-title text-center mb-4 fw-semibold">{{ action }} a Budget</h3>
-
                 <form method="POST">
                     {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-dismissible fade show message" role="alert">
+                            {{ form.non_field_errors }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endif %}
                     {{ form.as_p }}
-
                     <div class="d-grid mt-3">
                         <button type="submit" class="btn btn-primary">
                             {{ action }} Budget
